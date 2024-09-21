@@ -6,15 +6,19 @@ import Logout from "./Logout";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { sendMessageRoute, recieveMessageRoute } from "../../utils/APIRoutes";
+import SearchIcon from "@mui/icons-material/Search";
+import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 
-export default function ChatContainer({ currentChat, socket, currentGroupChat }) {
+export default function ChatContainer({
+  currentChat,
+  socket,
+  currentGroupChat,
+}) {
   const [messages, setMessages] = useState([]);
   const [usersCache, setUsersCache] = useState({});
   const scrollRef = useRef();
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [userdata, setUserData] = useState(null);
-
-
 
   const fetchUsername = async (userId) => {
     // Check cache first
@@ -23,7 +27,9 @@ export default function ChatContainer({ currentChat, socket, currentGroupChat })
     }
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/auth/getuser/${userId}`);
+      const response = await axios.get(
+        `http://localhost:5000/api/auth/getuser/${userId}`
+      );
       const username = response.data.user.username;
 
       // Update cache
@@ -39,11 +45,11 @@ export default function ChatContainer({ currentChat, socket, currentGroupChat })
     }
   };
 
-  
-
   useEffect(() => {
     const fetchMessages = async () => {
-      const data = await JSON.parse(localStorage.getItem(process.env.NEXT_PUBLIC_LOCALHOST_KEY));
+      const data = await JSON.parse(
+        localStorage.getItem(process.env.NEXT_PUBLIC_LOCALHOST_KEY)
+      );
       setUserData(data);
       let response;
       if (!currentGroupChat) {
@@ -52,13 +58,16 @@ export default function ChatContainer({ currentChat, socket, currentGroupChat })
           to: currentChat._id,
         });
       } else {
-        response = await axios.post("http://localhost:5000/api/groups/messages", {
-          from: data._id,
-          groupId: currentGroupChat._id,
-        });
+        response = await axios.post(
+          "http://localhost:5000/api/groups/messages",
+          {
+            from: data._id,
+            groupId: currentGroupChat._id,
+          }
+        );
       }
-      
-      console.log("check->",response.data);
+
+      console.log("check->", response.data);
       // Fetch usernames for all the messages
       const messagesWithUsernames = await Promise.all(
         response.data.map(async (message) => {
@@ -96,8 +105,10 @@ export default function ChatContainer({ currentChat, socket, currentGroupChat })
   }, [messages]);
 
   const handleSendMsg = async (msg) => {
-    const data = JSON.parse(localStorage.getItem(process.env.NEXT_PUBLIC_LOCALHOST_KEY));
-    
+    const data = JSON.parse(
+      localStorage.getItem(process.env.NEXT_PUBLIC_LOCALHOST_KEY)
+    );
+
     if (!currentGroupChat) {
       socket.current.emit("send-msg", {
         to: currentChat._id,
@@ -140,14 +151,24 @@ export default function ChatContainer({ currentChat, socket, currentGroupChat })
             <h3>{currentChat.username}</h3>
           </div>
         </div>
+        <div className="icons">
+          <VideocamOutlinedIcon />
+          <SearchIcon />
+        </div>
       </div>
       <div className="chat-messages">
         {messages.map((message) => (
           <div ref={scrollRef} key={uuidv4()}>
-            <div className={`message ${message.fromSelf ? "sended" : "recieved"}`}>
+            <div
+              className={`message ${message.fromSelf ? "sended" : "recieved"}`}
+            >
               <div className="content">
                 <p>{message.message}</p>
-                <small>{message.username===userdata.username ? "You" : message.username}</small>
+                <small>
+                  {message.username === userdata.username
+                    ? "You"
+                    : message.username}
+                </small>
               </div>
             </div>
           </div>
@@ -233,6 +254,16 @@ const Container = styled.div`
       .content {
         background-color: #9900ff20;
       }
+    }
+  }
+
+  .icons {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Space between icons */
+    svg {
+      color: white; /* Color for icons */
+      cursor: pointer; /* Make icons clickable */
     }
   }
 `;

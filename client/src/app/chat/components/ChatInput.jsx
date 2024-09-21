@@ -1,9 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState,useRef, useEffect } from "react";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { IoMdSend } from "react-icons/io";
 import styled from "styled-components";
 import Picker from "emoji-picker-react";
+import TagFacesOutlinedIcon from '@mui/icons-material/TagFacesOutlined';
 
 export default function ChatInput({ handleSendMsg }) {
   const [msg, setMsg] = useState("");
@@ -27,13 +28,26 @@ export default function ChatInput({ handleSendMsg }) {
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+        setShowEmojiPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <Container>
       <div className="button-container">
         <div className="emoji">
-          <BsEmojiSmileFill onClick={handleEmojiPickerhideShow} />
+          {/* <BsEmojiSmileFill onClick={handleEmojiPickerhideShow} /> */}
+          <TagFacesOutlinedIcon onClick={handleEmojiPickerhideShow}  />
           {showEmojiPicker && (
-            <div className="emoji-picker">
+            <div className="emoji-picker"  ref={emojiPickerRef}>
               <Picker onEmojiClick={handleEmojiClick} />
             </div>
           )}
@@ -43,7 +57,7 @@ export default function ChatInput({ handleSendMsg }) {
       <form className="input-container" onSubmit={(event) => sendChat(event)}>
         <input
           type="text"
-          placeholder="type your message here"
+          placeholder="Type a message"
           onChange={(e) => setMsg(e.target.value)}
           value={msg}
         />

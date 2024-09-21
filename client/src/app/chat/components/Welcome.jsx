@@ -22,7 +22,7 @@ export default function Welcome() {
 
   return (
     <Container>
-      <Image src={Robot} alt="Robot" width={300} height={300} />
+      {/* <Image src={Robot} alt="Robot" width={300} height={300} /> */}
       <h1>
         Welcome, <span>{userName}!</span>
       </h1>
